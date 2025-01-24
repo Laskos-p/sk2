@@ -30,5 +30,16 @@ Gra w staki
 	Obsługa pokoju gry została zaimplementowana w taki sposób, że dwóch graczy może prowadzić rozgrywkę w pełni zsynchronizowaną i odseparowaną od innych pokoi.
 
 
+Kompilacja servera i klienta:
+
+
+g++ -std=c++11 Board.cpp Square.cpp Ship.cpp Player.cpp main.cpp -o main.out
+
+
+g++ -std=c++11 ship_client.cpp -o ship_client.out 
+
+
+
+
    Trudności:
       Zamykanie połączeń z użytkownikami 
