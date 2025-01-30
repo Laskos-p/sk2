@@ -33,11 +33,14 @@ int main() {
     }
 
     int recvError;
+    uint32_t msgLength;
     while (true) {
         // system("clear");
         // receive and print message
         memset(buff, 0, sizeof buff);
-        recvError = recv(SocketFD, buff, sizeof buff, 0);
+        recv(SocketFD, &msgLength, sizeof(msgLength), 0);
+        msgLength = ntohl(msgLength);
+        recvError = recv(SocketFD, buff, msgLength, 0);
         if (recvError == -1) {
             perror("Error");
             close(SocketFD);
@@ -56,7 +59,9 @@ int main() {
 
         // receive request for message
         memset(buff, 0, sizeof buff);
-        recvError = recv(SocketFD, buff, sizeof buff, 0);
+        recv(SocketFD, &msgLength, sizeof(msgLength), 0);
+        msgLength = ntohl(msgLength);
+        recvError = recv(SocketFD, buff, msgLength, 0);
         if (recvError == -1) {
             perror("Error");
             close(SocketFD);
