@@ -35,30 +35,36 @@ std::string receiveMessage(int clientSocket) {
 
 void sendMessage(int clientSocket, const std::string &message, bool sendRequest = false) {
     char buffer[BUFFER_SIZE];
-    memset(buffer, 0, sizeof(buffer));
-    strncpy(buffer, message.c_str(), sizeof(buffer));
-    buffer[sizeof(buffer) - 1] = 0;
-    if (send(clientSocket, buffer, sizeof(buffer), 0) == -1) {
+    uint32_t msgLength = htonl(message.size());
+    if (send(clientSocket, &msgLength, sizeof(msgLength), 0) == -1) {
+        perror("Error while sending message");
+    }
+
+
+    if (send(clientSocket, message.c_str(), message.size(), 0) == -1) {
         perror("Error while sending message");
     }
 
     // send request to client to send message
-    memset(buffer, 0, sizeof(buffer));
+    //memset(buffer, 0, sizeof(buffer));
     std::string requestMessage;
     if (sendRequest) {
-        // memset(buffer, 0, sizeof(buffer));
         requestMessage = "SEND SOMETHING";
-        strncpy(buffer, requestMessage.c_str(), sizeof(buffer));
-        buffer[sizeof(buffer) - 1] = 0;
-        if (send(clientSocket, buffer, sizeof(buffer), 0) == -1) {
+        msgLength = htonl(requestMessage.size());
+        if (send(clientSocket, &msgLength, sizeof(msgLength), 0) == -1) {
+    	    perror("Error while sending message");
+    	}
+        if (send(clientSocket, requestMessage.c_str(), requestMessage.size(), 0) == -1) {
             perror("Error while sending request for message");
 
         }
     } else {
         requestMessage = "NO";
-        strncpy(buffer, requestMessage.c_str(), sizeof(buffer));
-        buffer[sizeof(buffer) - 1] = 0;
-        if (send(clientSocket, buffer, sizeof(buffer), 0) == -1) {
+        msgLength = htonl(requestMessage.size());
+        if (send(clientSocket, &msgLength, sizeof(msgLength), 0) == -1) {
+    	    perror("Error while sending message");
+    	}
+        if (send(clientSocket, requestMessage.c_str(), requestMessage.size(), 0) == -1) {
             perror("Error while sending request for message");
         }
     }
@@ -333,6 +339,9 @@ int main() {
     serverAddr.sin_port = htons(PORT);
     serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 
+
+	int opt = 1;
+	setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
     // Bind socket to the address
     if (bind(serverSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) == -1) {
         perror("Error while binding socket");
